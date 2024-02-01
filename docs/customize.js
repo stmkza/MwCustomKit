@@ -92,10 +92,10 @@ window.addEventListener('load', (function (features) {
             `\n` +
             `%cMW Custom Kitに以下の機能が追加されました。これらの機能を使用するには，メールワイズのシステム設定「JavaScriptファイルの設定」から，JavaScriptファイルを変更してください。\n` +
             `変更後の設定内容については，以下のURLを参照してください。\n` +
-            `https://github.com/stmkza/mw_custom_kit\n` + 
+            `https://github.com/stmkza/mw_custom_kit\n` +
             `\n` +
-            `%c追加された機能\n` + 
-            `%c` + 
+            `%c追加された機能\n` +
+            `%c` +
             unsetFeatureFlags.map(flagName => `・${flagName}`).join('\n'),
             'font-size: 1.5em; font-weight: bold; background-color: blue; color: white; padding: 0 0.5em; border-radius: 0.3em;',
             'font-size: 1.2em;',
@@ -123,9 +123,10 @@ window.addEventListener('load', (function (features) {
     UpdateNewMailTemplateWhenDestinationNotSet: utils => {
         if (CustomizeJS.page !== 'MailSelectAddress') return;
         utils.hookHandler('onInsert', (form) => {
-            if (!IsAliveWindow(window.parent.opener)) return;
+            if (!IsAliveWindow(window.parent.opener)) return true;
             const parentForm = window.parent.opener.document.MailSend;
-            if (!(form.To.value !== '' && !form.To.value.includes(',') && form.CC.value === '' && form.BCC.value === '' && parentForm.To.value === '' && parentForm.CC.value === '' && parentForm.BCC.value === '')) return;
+            if (!(form.To.value !== '' && !form.To.value.includes(',') && form.CC.value === '' && form.BCC.value === '' && parentForm.To.value === '' && parentForm.CC.value === '' && parentForm.BCC.value === ''))
+                return true;
             if (confirm("指定されたToアドレスを使用して新規メールを作成しますか？\n\n入力した本文はリセットされます。")) {
                 window.parent.opener.location.replace(`mw.cgi?page=MailSend&wid=${form.WID.value}&bs=${form.BS.value}&did=&mid=&dbid=&type=&bpt=&cid=&text=${encodeURIComponent(form.To.value)}`);
                 window.close();
