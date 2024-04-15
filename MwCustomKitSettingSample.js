@@ -17,6 +17,9 @@
 
             // 「一括設定する」画面を利用して，メールアプリケーション間の移動を一括で行えるようにする
             MailMoveBulk: true,
+
+            // メール一覧画面でShiftキーで一括選択できるようにする
+            BulkCheckMailList: true,
         },
     };
 

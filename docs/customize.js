@@ -1,5 +1,8 @@
 window.addEventListener('load', (function (features) {
     const config = JSON.parse(document.currentScript.textContent);
+    const keyState = {
+        shift: false,
+    };
     const utils = {
         hook: (targetFunctionName, beforeCallback = () => { }, afterCallback = () => { }) => {
             const originalFunction = window[targetFunctionName];
@@ -77,7 +80,16 @@ window.addEventListener('load', (function (features) {
         isAdmin: () => {
             return document.querySelector('#system-submenu > a[href^="mw.cgi?page=SystemAdmin"]') !== null;
         },
+        isShiftKey: (ev) => {
+            return keyState.shift;
+        }
     };
+    window.addEventListener('keydown', (ev) => {
+        keyState.shift = ev.shiftKey;
+    });
+    window.addEventListener('keyup', (ev) => {
+        keyState.shift = ev.shiftKey;
+    });
 
     let unsetFeatureFlags = [];
     Object.entries(features).forEach(([feature, handler]) => {
@@ -258,5 +270,32 @@ window.addEventListener('load', (function (features) {
 
             return false;
         });
+    },
+    BulkCheckMailList: utils => {
+        if (window.CustomizeJS.page !== 'MailIndex') {
+            return;
+        }
+        const checkBoxes = [];
+        let lastCheckedId = null;
+        [...document.querySelectorAll('#contentColumn #mainColumn form[name=MailIndex] .dataList tr > td.cellCheck .inputCheckBox[name=MID]')]
+            .map((check, i) => {
+                checkBoxes.push(check);
+                check.addEventListener('change', (ev) => {
+                    if (lastCheckedId === null) {
+                        lastCheckedId = i;
+                        return;
+                    }
+                    if (!utils.isShiftKey()) {
+                        return;
+                    }
+                    const operationType = checkBoxes[i].checked;
+                    const start = Math.min(lastCheckedId, i);
+                    const end = Math.max(lastCheckedId, i);
+                    for (let j = start; j <= end; j++) {
+                        checkBoxes[j].checked = operationType;
+                    }
+                    lastCheckedId = i;
+                });
+            });
     },
 }));
